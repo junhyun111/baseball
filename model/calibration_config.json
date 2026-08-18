@@ -1,16 +1,42 @@
 {
-  "version": 3,
+  "version": 4,
   "method": "affine",
-  "selection_scores": {
-    "identity": 0.2477118268609047,
-    "affine": 0.24764372408390045,
-    "type_affine": 0.24782317578792573
+  "selection_statistics": {
+    "identity": {
+      "weighted_cv_brier": 0.24772110879421233,
+      "brier_2024": 0.24807550013065338,
+      "brier_2024_r": 0.2481723427772522,
+      "brier_2024_f": 0.24735410511493683
+    },
+    "affine": {
+      "weighted_cv_brier": 0.2476910501718521,
+      "brier_2024": 0.2479894906282425,
+      "brier_2024_r": 0.24810990691184998,
+      "brier_2024_f": 0.24709278345108032
+    }
   },
+  "walk_forward_folds": [
+    {
+      "season": 2022,
+      "slope": 1.0,
+      "intercept": 0.0
+    },
+    {
+      "season": 2023,
+      "slope": 1.1814131802135557,
+      "intercept": -0.1
+    },
+    {
+      "season": 2024,
+      "slope": 1.1568325189832573,
+      "intercept": -0.0842063447616812
+    }
+  ],
   "trained_on_seasons": [
     2022,
     2023,
     2024
   ],
-  "slope": 1.18455002043331,
-  "intercept": -0.09989944683928176
+  "slope": 1.1469227207481136,
+  "intercept": -0.08019920634797717
 }

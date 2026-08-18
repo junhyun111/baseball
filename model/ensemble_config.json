@@ -1,37 +1,31 @@
 {
-  "version": 3,
+  "version": 4,
   "source_order": [
     "legacy_global",
-    "game_type",
-    "pitcher"
+    "game_type"
   ],
   "weights": [
-    0.5,
-    0.3,
-    0.2
+    1.0,
+    0.0
   ],
   "weights_by_game_type": {
     "R": [
-      0.5264441941057806,
-      0.47355580589421953,
+      1.0,
       0.0
     ],
     "F": [
-      0.7025530443716325,
-      0.29744695562836765,
-      0.0
+      0.75,
+      0.25
     ]
   },
   "weight_map_by_game_type": {
     "R": {
-      "legacy_global": 0.5264441941057806,
-      "game_type": 0.47355580589421953,
-      "pitcher": 0.0
+      "legacy_global": 1.0,
+      "game_type": 0.0
     },
     "F": {
-      "legacy_global": 0.7025530443716325,
-      "game_type": 0.29744695562836765,
-      "pitcher": 0.0
+      "legacy_global": 0.75,
+      "game_type": 0.25
     }
   },
   "sources": [
@@ -50,19 +44,12 @@
         "R": "regular_expert.cbm",
         "F": "futures_expert.cbm"
       }
-    },
-    {
-      "name": "pitcher",
-      "kind": "single",
-      "file": "pitcher_expert.cbm",
-      "feature_set": "pitcher"
     }
   ],
   "model_files": [
     "legacy_global.cbm",
     "regular_expert.cbm",
-    "futures_expert.cbm",
-    "pitcher_expert.cbm"
+    "futures_expert.cbm"
   ],
   "selected_regular": "regular_hl1_5",
   "selected_futures": "futures_post2023",
@@ -72,46 +59,21 @@
       2,
       112
     ],
-    "pitcher": [
-      131,
-      8,
-      22
-    ],
-    "regular_hl1_5": [
+    "regular_expert": [
       106,
       73,
       128
     ],
-    "regular_hl2_5": [
-      89,
-      85,
-      115
-    ],
-    "regular_uniform": [
-      136,
-      89,
-      143
-    ],
-    "futures_hl1": [
-      420,
-      1,
-      1
-    ],
-    "futures_post2023": [
+    "futures_expert": [
       420,
       1,
       138
-    ],
-    "futures_weak_old": [
-      242,
-      2,
-      1
     ]
   },
   "final_iterations": {
-    "legacy_global": 57,
-    "pitcher": 15,
+    "legacy_global": 40,
     "regular_expert": 100,
     "futures_expert": 70
-  }
+  },
+  "pitcher_expert": "experimental_only_train_v21"
 }
