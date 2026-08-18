@@ -1,0 +1,44 @@
+{
+  "fast_mode": false,
+  "rows": 1475092,
+  "features": 87,
+  "valid_years": [
+    2022,
+    2023,
+    2024
+  ],
+  "half_life_years": 3.0,
+  "best_iterations": {
+    "rmse": [
+      141,
+      3,
+      146
+    ],
+    "logloss": [
+      110,
+      2,
+      112
+    ]
+  },
+  "ensemble": {
+    "version": 1,
+    "rmse_weight": 0.0,
+    "logloss_weight": 1.0,
+    "rmse_iterations": 141,
+    "logloss_iterations": 110
+  },
+  "calibration": {
+    "version": 1,
+    "method": "affine",
+    "slope": 1.1086142648738606,
+    "intercept": -0.06124166785161067,
+    "trained_on_seasons": [
+      2022,
+      2023,
+      2024
+    ],
+    "walk_forward_blend_brier": 0.24877066413561502,
+    "walk_forward_affine_brier": 0.24866229792435965
+  },
+  "elapsed_seconds": 251.40438723564148
+}
