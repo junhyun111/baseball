@@ -1,44 +1,180 @@
 {
+  "version": 2,
   "fast_mode": false,
   "rows": 1475092,
-  "features": 87,
+  "features": 90,
   "valid_years": [
     2022,
     2023,
     2024
   ],
-  "half_life_years": 3.0,
+  "sources": [
+    "global_long",
+    "global_recent",
+    "global_seasonless",
+    "game_type",
+    "pitcher"
+  ],
   "best_iterations": {
-    "rmse": [
-      141,
+    "global_long": [
+      161,
       3,
+      10
+    ],
+    "global_recent": [
+      107,
+      3,
+      11
+    ],
+    "global_seasonless": [
+      90,
+      4,
+      2
+    ],
+    "regular_expert": [
+      108,
+      59,
       146
     ],
-    "logloss": [
-      110,
+    "futures_expert": [
+      140,
+      1,
+      1
+    ],
+    "pitcher": [
+      87,
       2,
-      112
+      103
     ]
   },
   "ensemble": {
-    "version": 1,
-    "rmse_weight": 0.0,
-    "logloss_weight": 1.0,
-    "rmse_iterations": 141,
-    "logloss_iterations": 110
+    "version": 2,
+    "source_order": [
+      "global_long",
+      "global_recent",
+      "global_seasonless",
+      "game_type",
+      "pitcher"
+    ],
+    "weights": [
+      0.03648300092040782,
+      0.0,
+      0.0,
+      0.7085826684568582,
+      0.2549343306227339
+    ],
+    "weight_map": {
+      "global_long": 0.03648300092040782,
+      "global_recent": 0.0,
+      "global_seasonless": 0.0,
+      "game_type": 0.7085826684568582,
+      "pitcher": 0.2549343306227339
+    },
+    "sources": [
+      {
+        "name": "global_long",
+        "kind": "single",
+        "file": "global_long.cbm",
+        "feature_set": "global_long"
+      },
+      {
+        "name": "global_recent",
+        "kind": "single",
+        "file": "global_recent.cbm",
+        "feature_set": "global_recent"
+      },
+      {
+        "name": "global_seasonless",
+        "kind": "single",
+        "file": "global_seasonless.cbm",
+        "feature_set": "global_seasonless"
+      },
+      {
+        "name": "game_type",
+        "kind": "game_type_router",
+        "feature_set": "game_type",
+        "fallback_source": "global_recent",
+        "routes": {
+          "R": "regular_expert.cbm",
+          "F": "futures_expert.cbm"
+        }
+      },
+      {
+        "name": "pitcher",
+        "kind": "single",
+        "file": "pitcher_expert.cbm",
+        "feature_set": "pitcher"
+      }
+    ],
+    "model_files": [
+      "global_long.cbm",
+      "global_recent.cbm",
+      "global_seasonless.cbm",
+      "regular_expert.cbm",
+      "futures_expert.cbm",
+      "pitcher_expert.cbm"
+    ],
+    "best_iterations": {
+      "global_long": [
+        161,
+        3,
+        10
+      ],
+      "global_recent": [
+        107,
+        3,
+        11
+      ],
+      "global_seasonless": [
+        90,
+        4,
+        2
+      ],
+      "regular_expert": [
+        108,
+        59,
+        146
+      ],
+      "futures_expert": [
+        140,
+        1,
+        1
+      ],
+      "pitcher": [
+        87,
+        2,
+        103
+      ]
+    },
+    "final_iterations": {
+      "global_long": 100,
+      "global_recent": 100,
+      "global_seasonless": 100,
+      "regular_expert": 108,
+      "futures_expert": 100,
+      "pitcher": 100
+    },
+    "selection_score": 0.247822904586792
   },
   "calibration": {
-    "version": 1,
+    "version": 2,
     "method": "affine",
-    "slope": 1.1086142648738606,
-    "intercept": -0.06124166785161067,
+    "slope": 1.1830065521036663,
+    "intercept": -0.09988224176613814,
     "trained_on_seasons": [
       2022,
       2023,
       2024
     ],
-    "walk_forward_blend_brier": 0.24877066413561502,
-    "walk_forward_affine_brier": 0.24866229792435965
+    "walk_forward_blend_brier": 0.24792432636022568,
+    "walk_forward_affine_brier": 0.247822904586792
   },
-  "elapsed_seconds": 251.40438723564148
+  "selected_fold_brier": {
+    "2022": 0.24352864921092987,
+    "2023": 0.2494528591632843,
+    "2024": 0.24856263399124146
+  },
+  "weighted_cv_brier": 0.247822904586792,
+  "worst_fold_brier": 0.2494528591632843,
+  "elapsed_seconds": 543.4726915359497
 }

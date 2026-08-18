@@ -27,13 +27,12 @@ import pandas as pd
 
 ID_COL = "row_id"
 TARGET_COL = "control_success"
-MODEL_FILES = (
-    "global_rmse.cbm",
-    "global_logloss.cbm",
+CONFIG_FILES = (
     "feature_config.json",
     "ensemble_config.json",
     "calibration_config.json",
 )
+LEGACY_MODEL_FILES = ("global_rmse.cbm", "global_logloss.cbm")
 EPSILON = 1e-5
 
 STRING_COLUMNS = [ID_COL, "top_bottom", "game_type", "base_state"]
@@ -209,11 +208,76 @@ def make_season_prior_map(
     return priors
 
 
+def make_recent_prior_maps(
+    train: pd.DataFrame,
+    half_life: float = 1.0,
+    default_prior: float = 0.5,
+    future_season: int | None = None,
+) -> tuple[dict[str, float], dict[str, dict[str, float]]]:
+    """Build target-only recency priors without reading evaluation rows.
+
+    For prediction season Y, only labeled seasons earlier than Y contribute.
+    Counts and target sums are exponentially downweighted by season age.
+    """
+    if TARGET_COL not in train.columns:
+        raise ValueError("Target is required to build recent priors")
+    if half_life <= 0:
+        raise ValueError("half_life must be positive")
+    seasons = sorted(int(value) for value in train["season"].unique())
+    if not seasons:
+        raise ValueError("Training data has no seasons")
+    if future_season is None:
+        future_season = max(seasons) + 1
+
+    by_season = train.groupby("season", observed=True)[TARGET_COL].agg(["sum", "count"])
+    by_type = train.groupby(["season", "game_type"], observed=True)[TARGET_COL].agg(
+        ["sum", "count"]
+    )
+    game_types = sorted(str(value) for value in train["game_type"].dropna().unique())
+    global_priors: dict[str, float] = {}
+    type_priors: dict[str, dict[str, float]] = {}
+
+    for prediction_season in seasons + [int(future_season)]:
+        historical_years = [year for year in seasons if year < prediction_season]
+        weighted_sum = 0.0
+        weighted_count = 0.0
+        for year in historical_years:
+            weight = 0.5 ** (((prediction_season - 1) - year) / half_life)
+            weighted_sum += weight * float(by_season.loc[year, "sum"])
+            weighted_count += weight * float(by_season.loc[year, "count"])
+        global_prior = (
+            weighted_sum / weighted_count if weighted_count else float(default_prior)
+        )
+        global_priors[str(prediction_season)] = float(global_prior)
+
+        type_priors[str(prediction_season)] = {}
+        for game_type in game_types:
+            typed_sum = 0.0
+            typed_count = 0.0
+            for year in historical_years:
+                key = (year, game_type)
+                if key not in by_type.index:
+                    continue
+                weight = 0.5 ** (((prediction_season - 1) - year) / half_life)
+                typed_sum += weight * float(by_type.loc[key, "sum"])
+                typed_count += weight * float(by_type.loc[key, "count"])
+            type_priors[str(prediction_season)][game_type] = float(
+                typed_sum / typed_count if typed_count else global_prior
+            )
+    return global_priors, type_priors
+
+
 def initial_feature_config(train: pd.DataFrame) -> dict[str, Any]:
     """Create the preprocessing configuration later persisted for inference."""
     future_season = int(train["season"].max()) + 1
+    recent_global_prior_map, recent_game_type_prior_map = make_recent_prior_maps(
+        train,
+        half_life=1.0,
+        default_prior=0.5,
+        future_season=future_season,
+    )
     return {
-        "version": 1,
+        "version": 2,
         "id_column": ID_COL,
         "target_column": TARGET_COL,
         "raw_input_columns": RAW_INPUT_COLUMNS,
@@ -230,6 +294,9 @@ def initial_feature_config(train: pd.DataFrame) -> dict[str, Any]:
         "season_prior_map": make_season_prior_map(
             train, default_prior=0.5, future_season=future_season
         ),
+        "recent_prior_half_life": 1.0,
+        "recent_global_prior_map": recent_global_prior_map,
+        "recent_game_type_prior_map": recent_game_type_prior_map,
         "prediction_clip": [EPSILON, 1.0 - EPSILON],
     }
 
@@ -244,6 +311,32 @@ def _season_prior(series: pd.Series, config: dict[str, Any]) -> pd.Series:
         float(config.get("default_prior", 0.5)),
     )
     return series.map(prior_map).fillna(fallback).astype("float32")
+
+
+def _recent_global_prior(series: pd.Series, config: dict[str, Any]) -> pd.Series:
+    prior_map = {
+        int(key): float(value)
+        for key, value in config.get(
+            "recent_global_prior_map", config["season_prior_map"]
+        ).items()
+    }
+    fallback = prior_map.get(
+        int(config.get("future_season", -1)),
+        float(config.get("default_prior", 0.5)),
+    )
+    return series.map(prior_map).fillna(fallback).astype("float32")
+
+
+def _recent_game_type_prior(raw: pd.DataFrame, config: dict[str, Any]) -> pd.Series:
+    nested = config.get("recent_game_type_prior_map", {})
+    global_prior = _recent_global_prior(raw["season"], config)
+    values = []
+    for season, game_type, fallback in zip(
+        raw["season"], raw["game_type"], global_prior, strict=False
+    ):
+        value = nested.get(str(int(season)), {}).get(str(game_type), fallback)
+        values.append(float(value))
+    return pd.Series(values, index=raw.index, dtype="float32")
 
 
 def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
@@ -262,7 +355,11 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
         column for column in RAW_INPUT_COLUMNS if column not in excluded
     ]
     features = raw.loc[:, base_columns].copy()
-    prior = _season_prior(raw["season"], config)
+    is_v2 = int(config.get("version", 1)) >= 2
+    historical_prior = _season_prior(raw["season"], config)
+    recent_global_prior = _recent_global_prior(raw["season"], config)
+    recent_game_type_prior = _recent_game_type_prior(raw, config)
+    modeling_prior = recent_game_type_prior if is_v2 else historical_prior
 
     balls = raw["balls_before"]
     strikes = raw["strikes_before"]
@@ -296,13 +393,25 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
         "asof_pitcher_prev3_game_success_rate"
     ].isna().astype("int8")
 
-    pitcher_rate = raw["asof_pitcher_success_rate"].fillna(prior)
-    batter_rate = raw["asof_batter_success_rate"].fillna(prior)
+    pitcher_rate = raw["asof_pitcher_success_rate"].fillna(modeling_prior)
+    batter_rate = raw["asof_batter_success_rate"].fillna(modeling_prior)
     pitcher_n = raw["asof_pitcher_n"].astype("float32")
     batter_n = raw["asof_batter_n"].astype("float32")
-    features["season_prior_rate"] = prior
-    features["pitcher_relative_success"] = (pitcher_rate - prior).astype("float32")
-    features["batter_relative_success"] = (batter_rate - prior).astype("float32")
+    if is_v2:
+        features["historical_expanding_prior"] = historical_prior
+        features["recent_global_prior"] = recent_global_prior
+        features["recent_game_type_prior"] = recent_game_type_prior
+        features["pitcher_relative_historical"] = (
+            pitcher_rate - historical_prior
+        ).astype("float32")
+    else:
+        features["season_prior_rate"] = historical_prior
+    features["pitcher_relative_success"] = (pitcher_rate - modeling_prior).astype(
+        "float32"
+    )
+    features["batter_relative_success"] = (batter_rate - modeling_prior).astype(
+        "float32"
+    )
 
     for k in config.get("shrinkage_k", [50, 200, 1000]):
         k_value = float(k)
@@ -310,13 +419,15 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
             pitcher_n / (pitcher_n + k_value)
         ).astype("float32")
         features[f"pitcher_success_shrink_{k}"] = (
-            (pitcher_n * pitcher_rate + k_value * prior) / (pitcher_n + k_value)
+            (pitcher_n * pitcher_rate + k_value * modeling_prior)
+            / (pitcher_n + k_value)
         ).astype("float32")
 
     for k in config.get("batter_shrinkage_k", [50, 200]):
         k_value = float(k)
         features[f"batter_success_shrink_{k}"] = (
-            (batter_n * batter_rate + k_value * prior) / (batter_n + k_value)
+            (batter_n * batter_rate + k_value * modeling_prior)
+            / (batter_n + k_value)
         ).astype("float32")
 
     career_success = raw["asof_pitcher_success_rate"]
@@ -447,6 +558,65 @@ def resolve_data_dir(root: Path, explicit: str | None = None) -> Path:
     )
 
 
+def required_model_artifacts(model_path: Path) -> tuple[str, ...]:
+    """Return config and model files required by either V1 or V2 inference."""
+    ensemble_path = model_path / "ensemble_config.json"
+    if not ensemble_path.exists():
+        return CONFIG_FILES + LEGACY_MODEL_FILES
+    ensemble = load_json(ensemble_path)
+    if int(ensemble.get("version", 1)) < 2:
+        return CONFIG_FILES + LEGACY_MODEL_FILES
+    model_files = tuple(str(value) for value in ensemble.get("model_files", []))
+    if not model_files:
+        raise ValueError("V2 ensemble_config.json has no model_files")
+    return CONFIG_FILES + model_files
+
+
+def _predict_v2_sources(
+    model_path: Path,
+    raw: pd.DataFrame,
+    features: pd.DataFrame,
+    feature_config: dict[str, Any],
+    ensemble_config: dict[str, Any],
+) -> dict[str, np.ndarray]:
+    from catboost import CatBoostClassifier
+
+    feature_sets = feature_config.get("model_feature_columns", {})
+    source_specs = ensemble_config.get("sources", [])
+    predictions: dict[str, np.ndarray] = {}
+
+    def predict_file(filename: str, feature_set: str, mask: np.ndarray | None = None) -> np.ndarray:
+        columns = feature_sets.get(feature_set)
+        if not columns:
+            raise ValueError(f"Missing feature set in feature_config: {feature_set}")
+        model = CatBoostClassifier()
+        model.load_model(str(model_path / filename))
+        frame = features.loc[:, columns] if mask is None else features.loc[mask, columns]
+        return clip_predictions(model.predict_proba(frame)[:, 1], feature_config)
+
+    for spec in source_specs:
+        name = str(spec["name"])
+        kind = spec.get("kind", "single")
+        if kind == "single":
+            predictions[name] = predict_file(str(spec["file"]), str(spec["feature_set"]))
+            continue
+        if kind != "game_type_router":
+            raise ValueError(f"Unsupported V2 source kind: {kind}")
+
+        fallback_name = str(spec["fallback_source"])
+        if fallback_name not in predictions:
+            raise ValueError(f"Router fallback source is not available: {fallback_name}")
+        routed = predictions[fallback_name].copy()
+        feature_set = str(spec["feature_set"])
+        game_type_values = raw["game_type"].astype(str).to_numpy()
+        for game_type, filename in spec.get("routes", {}).items():
+            mask = game_type_values == str(game_type)
+            if mask.any():
+                routed[mask] = predict_file(str(filename), feature_set, mask)
+        predictions[name] = routed
+    return predictions
+
+
 def run_inference(
     root: Path,
     data_dir: str | None = None,
@@ -464,7 +634,7 @@ def run_inference(
     data_path = resolve_data_dir(root, data_dir)
     model_path = Path(model_dir).resolve() if model_dir else (root / "model").resolve()
     output_path = Path(output_dir).resolve() if output_dir else (root / "output").resolve()
-    for filename in MODEL_FILES:
+    for filename in required_model_artifacts(model_path):
         if not (model_path / filename).exists():
             raise FileNotFoundError(f"Missing model artifact: {model_path / filename}")
 
@@ -477,20 +647,32 @@ def run_inference(
         raise ValueError("test.csv contains duplicate row_id values")
     model_features = build_features(test, feature_config)
 
-    rmse_model = CatBoostRegressor()
-    rmse_model.load_model(str(model_path / "global_rmse.cbm"))
-    logloss_model = CatBoostClassifier()
-    logloss_model.load_model(str(model_path / "global_logloss.cbm"))
-
-    pred_rmse = clip_predictions(rmse_model.predict(model_features), feature_config)
-    pred_logloss = clip_predictions(
-        logloss_model.predict_proba(model_features)[:, 1], feature_config
-    )
-    weight_rmse = float(ensemble_config["rmse_weight"])
-    weight_logloss = float(ensemble_config["logloss_weight"])
-    if not math.isclose(weight_rmse + weight_logloss, 1.0, abs_tol=1e-8):
-        raise ValueError("Ensemble weights must sum to one")
-    blended = weight_rmse * pred_rmse + weight_logloss * pred_logloss
+    if int(ensemble_config.get("version", 1)) >= 2:
+        source_predictions = _predict_v2_sources(
+            model_path, test, model_features, feature_config, ensemble_config
+        )
+        source_order = [str(value) for value in ensemble_config["source_order"]]
+        weights = np.asarray(ensemble_config["weights"], dtype="float64")
+        if len(weights) != len(source_order) or not math.isclose(
+            float(weights.sum()), 1.0, abs_tol=1e-8
+        ):
+            raise ValueError("V2 ensemble weights must match sources and sum to one")
+        matrix = np.column_stack([source_predictions[name] for name in source_order])
+        blended = matrix @ weights
+    else:
+        rmse_model = CatBoostRegressor()
+        rmse_model.load_model(str(model_path / "global_rmse.cbm"))
+        logloss_model = CatBoostClassifier()
+        logloss_model.load_model(str(model_path / "global_logloss.cbm"))
+        pred_rmse = clip_predictions(rmse_model.predict(model_features), feature_config)
+        pred_logloss = clip_predictions(
+            logloss_model.predict_proba(model_features)[:, 1], feature_config
+        )
+        weight_rmse = float(ensemble_config["rmse_weight"])
+        weight_logloss = float(ensemble_config["logloss_weight"])
+        if not math.isclose(weight_rmse + weight_logloss, 1.0, abs_tol=1e-8):
+            raise ValueError("Ensemble weights must sum to one")
+        blended = weight_rmse * pred_rmse + weight_logloss * pred_logloss
     predictions = apply_calibration(blended, calibration_config, feature_config)
 
     predicted = pd.DataFrame({ID_COL: test[ID_COL].astype(str), TARGET_COL: predictions})
@@ -526,7 +708,8 @@ def run_inference(
 def build_submit_zip(root: Path, model_dir: str | None, destination: str | None) -> Path:
     """Create the evaluator-compatible submit.zip without training code."""
     model_path = Path(model_dir).resolve() if model_dir else (root / "model").resolve()
-    missing = [filename for filename in MODEL_FILES if not (model_path / filename).exists()]
+    required_files = required_model_artifacts(model_path)
+    missing = [filename for filename in required_files if not (model_path / filename).exists()]
     if missing:
         raise FileNotFoundError(
             "Run main.ipynb before packaging. Missing model files: " + ", ".join(missing)
@@ -536,7 +719,7 @@ def build_submit_zip(root: Path, model_dir: str | None, destination: str | None)
     )
     requirements = "\n".join(
         [
-            "catboost==1.2.8",
+            "catboost==1.2.10",
             "numpy==2.3.2",
             "pandas==2.3.3",
             "",
@@ -548,7 +731,7 @@ def build_submit_zip(root: Path, model_dir: str | None, destination: str | None)
         staged_model = staging / "model"
         staged_model.mkdir(parents=True)
         shutil.copy2(Path(__file__).resolve(), staging / "script.py")
-        for filename in MODEL_FILES:
+        for filename in required_files:
             shutil.copy2(model_path / filename, staged_model / filename)
         (staging / "requirements.txt").write_text(requirements, encoding="utf-8")
 
@@ -563,7 +746,7 @@ def build_submit_zip(root: Path, model_dir: str | None, destination: str | None)
     with zipfile.ZipFile(destination_path) as archive:
         names = set(archive.namelist())
     required_entries = {"script.py", "requirements.txt"} | {
-        f"model/{filename}" for filename in MODEL_FILES
+        f"model/{filename}" for filename in required_files
     }
     if not required_entries.issubset(names):
         raise RuntimeError("submit.zip validation failed")
