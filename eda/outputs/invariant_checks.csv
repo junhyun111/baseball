@@ -1,0 +1,9 @@
+﻿check,eligible_rows,tolerance,violations,violation_rate,mean_abs_error,max_abs_error
+run_total_equals_parts,1475092,0.0,0,0.0,0.0,0.0
+runner_count_equals_flags,1475092,0.0,0,0.0,0.0,0.0
+win_expectancies_sum_100,1475092,0.11,0,0.0,0.003973108118002001,0.10000000000000853
+home_score_diff_matches_scores,1475092,0.0,0,0.0,0.0,0.0
+pitcher_n_equals_pitchmix_n,1475092,0.0,0,0.0,0.0,0.0
+pitcher_score_diff_matches_half,1475092,0.0,0,0.0,0.0,0.0
+base_state_matches_flags,1475092,0.0,0,0.0,0.0,0.0
+pitchmix_rates_sum_1,1474300,1.1e-06,0,0.0,2.6970424473126316e-07,1.000000000139778e-06

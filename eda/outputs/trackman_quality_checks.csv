@@ -1,0 +1,8 @@
+﻿check,violations,rate
+inning_lt_1,1,5.57700222745469e-07
+balls_outside_0_3,1,5.57700222745469e-07
+strikes_outside_0_2,1,5.57700222745469e-07
+outs_outside_0_2,95,5.298152116081955e-05
+extension_le_0,3,1.673100668236407e-06
+release_speed_lt_80,9,5.01930200470922e-06
+spin_rate_lt_500,1,5.57700222745469e-07

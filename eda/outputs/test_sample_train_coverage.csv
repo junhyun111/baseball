@@ -1,0 +1,9 @@
+﻿feature,test_sample_rows,seen_in_train_rows,unseen_in_train_rows,seen_rate,note
+pitcher_id,5,2,3,0.4,Public test has only 5 format-check rows; not a drift estimate.
+batter_id,5,3,2,0.6,Public test has only 5 format-check rows; not a drift estimate.
+pitcher_team_id,5,5,0,1.0,Public test has only 5 format-check rows; not a drift estimate.
+batter_team_id,5,5,0,1.0,Public test has only 5 format-check rows; not a drift estimate.
+game_type,5,5,0,1.0,Public test has only 5 format-check rows; not a drift estimate.
+base_state,5,5,0,1.0,Public test has only 5 format-check rows; not a drift estimate.
+pitcher_hand,5,5,0,1.0,Public test has only 5 format-check rows; not a drift estimate.
+batter_hand,5,5,0,1.0,Public test has only 5 format-check rows; not a drift estimate.

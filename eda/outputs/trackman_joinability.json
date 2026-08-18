@@ -1,0 +1,9 @@
+{
+  "main_pitcher_ids": 792,
+  "trackman_pitcher_ids": 906,
+  "direct_pitcher_id_intersection": 0,
+  "main_batter_ids": 830,
+  "trackman_batter_ids": 913,
+  "direct_batter_id_intersection": 0,
+  "interpretation": "The identifier namespaces do not directly overlap; no row/player direct join key is provided."
+}

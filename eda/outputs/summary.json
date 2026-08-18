@@ -1,0 +1,18 @@
+{
+  "train_rows": 1475092,
+  "train_columns": 49,
+  "positive_rows": 772603,
+  "negative_rows": 702489,
+  "global_success_rate": 0.5237659752747625,
+  "unique_row_ids": 1475092,
+  "duplicate_row_ids": 0,
+  "invalid_row_ids": 0,
+  "trackman_rows": 1793078,
+  "trackman_columns": 30,
+  "public_test_rows": 5,
+  "sampling": {
+    "train_fraction_for_visual_only": 0.12,
+    "trackman_fraction_for_visual_only": 0.08,
+    "all_csv_tables_are_exact": true
+  }
+}
