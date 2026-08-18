@@ -1,0 +1,225 @@
+{
+  "version": "3.0",
+  "fast_mode": false,
+  "rows": 1475092,
+  "base_features": 102,
+  "total_features": 186,
+  "selected_candidate": "full",
+  "selected_sources": [
+    "direct",
+    "structured_formula",
+    "structured_logit",
+    "physics",
+    "futures_anchor"
+  ],
+  "selected_calibration": "affine_eta_1.00",
+  "recent_weighted_cv": 0.24789395939679082,
+  "brier_2022": 0.24343408607709838,
+  "brier_2022_r": 0.24862836353873066,
+  "brier_2022_f": 0.2064108703705402,
+  "brier_2023": 0.2499957711152198,
+  "brier_2023_r": 0.24996283752385798,
+  "brier_2023_f": 0.2502776401408134,
+  "brier_2024": 0.2479638457284729,
+  "brier_2024_r": 0.248068490746426,
+  "brier_2024_f": 0.24718451058760438,
+  "auc_2024": 0.5479154231184498,
+  "acceptance_limits": {
+    "recent_weighted_cv": 0.2474,
+    "brier_2024": 0.2476,
+    "brier_2024_r": 0.2479,
+    "brier_2024_f": 0.247,
+    "auc_2024": 0.555
+  },
+  "acceptance": {
+    "recent_weighted_cv": false,
+    "brier_2024": false,
+    "brier_2024_r": false,
+    "brier_2024_f": false,
+    "auc_2024": false
+  },
+  "all_acceptance_passed": false,
+  "recommended_for_submission": false,
+  "ensemble": {
+    "version": 5,
+    "model_files": [
+      "direct_success.cbm",
+      "reverse_expert.cbm",
+      "middle_expert.cbm",
+      "outside_expert.cbm",
+      "overlap_expert.cbm",
+      "physics_command.cbm",
+      "futures_expert.cbm",
+      "pitch_type_model.cbm",
+      "trackman_profiles.parquet"
+    ],
+    "selected_candidate": "full",
+    "source_order": [
+      "direct",
+      "structured_formula",
+      "structured_logit",
+      "physics",
+      "futures_anchor"
+    ],
+    "weights": [
+      0.4157914390990381,
+      0.13854252622908414,
+      0.0,
+      0.0,
+      0.4456660346718777
+    ],
+    "weight_map": {
+      "direct": 0.4157914390990381,
+      "structured_formula": 0.13854252622908414,
+      "structured_logit": 0.0,
+      "physics": 0.0,
+      "futures_anchor": 0.4456660346718777
+    },
+    "failure_combiner": {
+      "intercept": 0.15051464058386005,
+      "coefficients": [
+        0.4567302633319924,
+        0.07393025785204806,
+        0.01554047269486162,
+        0.0
+      ],
+      "success": true
+    },
+    "failure_fold_configs": [
+      {
+        "season": 2022,
+        "method": "formula_fallback"
+      },
+      {
+        "season": 2023,
+        "intercept": 0.3326296782263051,
+        "coefficients": [
+          0.8494959871335626,
+          0.04955152677409643,
+          0.0755096413589835,
+          0.0
+        ],
+        "success": true
+      },
+      {
+        "season": 2024,
+        "intercept": 0.20579186245083964,
+        "coefficients": [
+          0.5310321056136825,
+          0.05503231769073388,
+          0.020049466926786157,
+          0.0
+        ],
+        "success": true
+      }
+    ],
+    "walk_forward_parameters": [
+      {
+        "season": 2022,
+        "weights": {
+          "direct": 1.0,
+          "structured_formula": 0.0,
+          "structured_logit": 0.0,
+          "physics": 0.0,
+          "futures_anchor": 0.0
+        }
+      },
+      {
+        "season": 2023,
+        "weights": {
+          "direct": 0.6927564002992083,
+          "structured_formula": 0.0,
+          "structured_logit": 0.0,
+          "physics": 0.05596581448910972,
+          "futures_anchor": 0.251277785211682
+        }
+      },
+      {
+        "season": 2024,
+        "weights": {
+          "direct": 0.4326574502995036,
+          "structured_formula": 0.09315706992465868,
+          "structured_logit": 0.0,
+          "physics": 0.07543161927032419,
+          "futures_anchor": 0.3987538605055135
+        }
+      }
+    ],
+    "best_iterations": {
+      "direct": [
+        149,
+        2,
+        112
+      ],
+      "reverse": [
+        128,
+        39,
+        196
+      ],
+      "middle": [
+        85,
+        92,
+        61
+      ],
+      "outside_only": [
+        93,
+        98,
+        102
+      ],
+      "reverse_middle": [
+        135,
+        145,
+        172
+      ],
+      "physics": [
+        131,
+        2,
+        221
+      ],
+      "futures_anchor": [
+        141,
+        1,
+        84
+      ]
+    },
+    "final_iterations": {
+      "direct": 57,
+      "reverse": 118,
+      "middle": 76,
+      "outside_only": 100,
+      "reverse_middle": 158,
+      "physics": 112,
+      "futures_anchor": 42
+    }
+  },
+  "calibration": {
+    "version": 5,
+    "method": "affine",
+    "slope": 1.155742094795486,
+    "intercept": -0.08150429990084007,
+    "eta": 1.0,
+    "selected_candidate": "affine_eta_1.00",
+    "walk_forward_folds": [
+      {
+        "season": 2022,
+        "method": "identity",
+        "eta": 0.0
+      },
+      {
+        "season": 2023,
+        "method": "affine",
+        "slope": 1.104214185186829,
+        "intercept": -0.06165271776890524,
+        "eta": 1.0
+      },
+      {
+        "season": 2024,
+        "method": "affine",
+        "slope": 1.0836547897693658,
+        "intercept": -0.04723675020996354,
+        "eta": 1.0
+      }
+    ]
+  },
+  "elapsed_seconds": 1179.549838066101
+}

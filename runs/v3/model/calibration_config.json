@@ -1,0 +1,29 @@
+{
+  "version": 5,
+  "method": "affine",
+  "slope": 1.155742094795486,
+  "intercept": -0.08150429990084007,
+  "eta": 1.0,
+  "selected_candidate": "affine_eta_1.00",
+  "walk_forward_folds": [
+    {
+      "season": 2022,
+      "method": "identity",
+      "eta": 0.0
+    },
+    {
+      "season": 2023,
+      "method": "affine",
+      "slope": 1.104214185186829,
+      "intercept": -0.06165271776890524,
+      "eta": 1.0
+    },
+    {
+      "season": 2024,
+      "method": "affine",
+      "slope": 1.0836547897693658,
+      "intercept": -0.04723675020996354,
+      "eta": 1.0
+    }
+  ]
+}

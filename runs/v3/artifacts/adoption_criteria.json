@@ -1,0 +1,18 @@
+{
+  "limits": {
+    "recent_weighted_cv": 0.2474,
+    "brier_2024": 0.2476,
+    "brier_2024_r": 0.2479,
+    "brier_2024_f": 0.247,
+    "auc_2024": 0.555
+  },
+  "results": {
+    "recent_weighted_cv": false,
+    "brier_2024": false,
+    "brier_2024_r": false,
+    "brier_2024_f": false,
+    "auc_2024": false
+  },
+  "all_passed": false,
+  "recommended_for_submission": false
+}

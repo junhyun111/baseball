@@ -1,0 +1,352 @@
+{
+  "folds": [
+    {
+      "rows": 728588,
+      "consecutive_transitions": 728028,
+      "consecutive_rate": 0.9992313900311287,
+      "targets": {
+        "success_reconstructed": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.5430039763450623,
+          "max_rounding_error": 0.008158999999977823
+        },
+        "reverse": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.21217291057109833,
+          "max_rounding_error": 0.007958000000144239
+        },
+        "middle": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.1391373872756958,
+          "max_rounding_error": 0.007884999999987485
+        },
+        "ball": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.3733442425727844,
+          "max_rounding_error": 0.007895000000189611
+        },
+        "strike": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.43897324800491333,
+          "max_rounding_error": 0.007841000000098575
+        },
+        "reverse_middle": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.03350662812590599
+        },
+        "outside_only": {
+          "recovered": 727468,
+          "coverage": 0.9984627800622574,
+          "positive_rate": 0.1391923725605011
+        }
+      },
+      "success_match_rate": 1.0,
+      "fold": 2022,
+      "split": "train"
+    },
+    {
+      "rows": 247472,
+      "consecutive_transitions": 247082,
+      "consecutive_rate": 0.9984240641365488,
+      "targets": {
+        "success_reconstructed": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.5287091732025146,
+          "max_rounding_error": 0.011003000000528118
+        },
+        "reverse": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.23294493556022644,
+          "max_rounding_error": 0.010864999999739666
+        },
+        "middle": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.14940038323402405,
+          "max_rounding_error": 0.01106500000014421
+        },
+        "ball": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.36414650082588196,
+          "max_rounding_error": 0.010795000000143773
+        },
+        "strike": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.4492376446723938,
+          "max_rounding_error": 0.011237000000619446
+        },
+        "reverse_middle": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.03655959293246269
+        },
+        "outside_only": {
+          "recovered": 246994,
+          "coverage": 0.9980684683519752,
+          "positive_rate": 0.12550507485866547
+        }
+      },
+      "success_match_rate": 1.0,
+      "fold": 2022,
+      "split": "valid"
+    },
+    {
+      "rows": 976060,
+      "consecutive_transitions": 975412,
+      "consecutive_rate": 0.9993361063869024,
+      "targets": {
+        "success_reconstructed": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.5394197702407837,
+          "max_rounding_error": 0.011003000000528118
+        },
+        "reverse": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.21742698550224304,
+          "max_rounding_error": 0.010864999999739666
+        },
+        "middle": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.14173276722431183,
+          "max_rounding_error": 0.01106500000014421
+        },
+        "ball": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.37091851234436035,
+          "max_rounding_error": 0.010795000000143773
+        },
+        "strike": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.44151198863983154,
+          "max_rounding_error": 0.011237000000619446
+        },
+        "reverse_middle": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.03427906706929207
+        },
+        "outside_only": {
+          "recovered": 974764,
+          "coverage": 0.9986722127738049,
+          "positive_rate": 0.13569951057434082
+        }
+      },
+      "success_match_rate": 1.0,
+      "fold": 2023,
+      "split": "train"
+    },
+    {
+      "rows": 245525,
+      "consecutive_transitions": 245143,
+      "consecutive_rate": 0.9984441502901945,
+      "targets": {
+        "success_reconstructed": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.49993062019348145,
+          "max_rounding_error": 0.012845999999626656
+        },
+        "reverse": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.25586339831352234,
+          "max_rounding_error": 0.012716000000182248
+        },
+        "middle": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.15328872203826904,
+          "max_rounding_error": 0.012925000000223008
+        },
+        "ball": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.3686959445476532,
+          "max_rounding_error": 0.01301300000068295
+        },
+        "strike": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.4445405602455139,
+          "max_rounding_error": 0.01230299999951967
+        },
+        "reverse_middle": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.03422556072473526
+        },
+        "outside_only": {
+          "recovered": 245080,
+          "coverage": 0.9981875572752266,
+          "positive_rate": 0.12514281272888184
+        }
+      },
+      "success_match_rate": 1.0,
+      "fold": 2023,
+      "split": "valid"
+    },
+    {
+      "rows": 1221585,
+      "consecutive_transitions": 1220874,
+      "consecutive_rate": 0.9994179692776188,
+      "targets": {
+        "success_reconstructed": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.531515896320343,
+          "max_rounding_error": 0.012845999999626656
+        },
+        "reverse": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.22511909902095795,
+          "max_rounding_error": 0.012716000000182248
+        },
+        "middle": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.1440725475549698,
+          "max_rounding_error": 0.012925000000223008
+        },
+        "ball": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.3703972399234772,
+          "max_rounding_error": 0.01301300000068295
+        },
+        "strike": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.44206470251083374,
+          "max_rounding_error": 0.01230299999951967
+        },
+        "reverse_middle": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.034263454377651215
+        },
+        "outside_only": {
+          "recovered": 1220163,
+          "coverage": 0.9988359385552377,
+          "positive_rate": 0.13355593383312225
+        }
+      },
+      "success_match_rate": 1.0,
+      "fold": 2024,
+      "split": "train"
+    },
+    {
+      "rows": 253507,
+      "consecutive_transitions": 253116,
+      "consecutive_rate": 0.9984576362782882,
+      "targets": {
+        "success_reconstructed": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.4860711097717285,
+          "max_rounding_error": 0.014615000000048894
+        },
+        "reverse": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.24800126254558563,
+          "max_rounding_error": 0.015236000000186323
+        },
+        "middle": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.176291823387146,
+          "max_rounding_error": 0.014911000000211061
+        },
+        "ball": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.36565297842025757,
+          "max_rounding_error": 0.014737999999852036
+        },
+        "strike": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.4497915208339691,
+          "max_rounding_error": 0.015034000000014203
+        },
+        "reverse_middle": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.033307645469903946
+        },
+        "outside_only": {
+          "recovered": 253035,
+          "coverage": 0.9981381184740461,
+          "positive_rate": 0.1229434683918953
+        }
+      },
+      "success_match_rate": 1.0,
+      "fold": 2024,
+      "split": "valid"
+    }
+  ],
+  "final": {
+    "rows": 1475092,
+    "consecutive_transitions": 1474300,
+    "consecutive_rate": 0.9994630843364346,
+    "targets": {
+      "success_reconstructed": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.5237182378768921,
+        "max_rounding_error": 0.014615000000048894
+      },
+      "reverse": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.22904253005981445,
+        "max_rounding_error": 0.015236000000186323
+      },
+      "middle": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.14961574971675873,
+        "max_rounding_error": 0.014911000000211061
+      },
+      "ball": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.3695310652256012,
+        "max_rounding_error": 0.014737999999852036
+      },
+      "strike": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.4433331787586212,
+        "max_rounding_error": 0.015034000000014203
+      },
+      "reverse_middle": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.034098219126462936
+      },
+      "outside_only": {
+        "recovered": 1473508,
+        "coverage": 0.9989261686728692,
+        "positive_rate": 0.13172172009944916
+      }
+    },
+    "success_match_rate": 1.0
+  }
+}

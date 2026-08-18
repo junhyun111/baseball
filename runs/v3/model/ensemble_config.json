@@ -1,0 +1,152 @@
+{
+  "version": 5,
+  "model_files": [
+    "direct_success.cbm",
+    "reverse_expert.cbm",
+    "middle_expert.cbm",
+    "outside_expert.cbm",
+    "overlap_expert.cbm",
+    "physics_command.cbm",
+    "futures_expert.cbm",
+    "pitch_type_model.cbm",
+    "trackman_profiles.parquet"
+  ],
+  "selected_candidate": "full",
+  "source_order": [
+    "direct",
+    "structured_formula",
+    "structured_logit",
+    "physics",
+    "futures_anchor"
+  ],
+  "weights": [
+    0.4157914390990381,
+    0.13854252622908414,
+    0.0,
+    0.0,
+    0.4456660346718777
+  ],
+  "weight_map": {
+    "direct": 0.4157914390990381,
+    "structured_formula": 0.13854252622908414,
+    "structured_logit": 0.0,
+    "physics": 0.0,
+    "futures_anchor": 0.4456660346718777
+  },
+  "failure_combiner": {
+    "intercept": 0.15051464058386005,
+    "coefficients": [
+      0.4567302633319924,
+      0.07393025785204806,
+      0.01554047269486162,
+      0.0
+    ],
+    "success": true
+  },
+  "failure_fold_configs": [
+    {
+      "season": 2022,
+      "method": "formula_fallback"
+    },
+    {
+      "season": 2023,
+      "intercept": 0.3326296782263051,
+      "coefficients": [
+        0.8494959871335626,
+        0.04955152677409643,
+        0.0755096413589835,
+        0.0
+      ],
+      "success": true
+    },
+    {
+      "season": 2024,
+      "intercept": 0.20579186245083964,
+      "coefficients": [
+        0.5310321056136825,
+        0.05503231769073388,
+        0.020049466926786157,
+        0.0
+      ],
+      "success": true
+    }
+  ],
+  "walk_forward_parameters": [
+    {
+      "season": 2022,
+      "weights": {
+        "direct": 1.0,
+        "structured_formula": 0.0,
+        "structured_logit": 0.0,
+        "physics": 0.0,
+        "futures_anchor": 0.0
+      }
+    },
+    {
+      "season": 2023,
+      "weights": {
+        "direct": 0.6927564002992083,
+        "structured_formula": 0.0,
+        "structured_logit": 0.0,
+        "physics": 0.05596581448910972,
+        "futures_anchor": 0.251277785211682
+      }
+    },
+    {
+      "season": 2024,
+      "weights": {
+        "direct": 0.4326574502995036,
+        "structured_formula": 0.09315706992465868,
+        "structured_logit": 0.0,
+        "physics": 0.07543161927032419,
+        "futures_anchor": 0.3987538605055135
+      }
+    }
+  ],
+  "best_iterations": {
+    "direct": [
+      149,
+      2,
+      112
+    ],
+    "reverse": [
+      128,
+      39,
+      196
+    ],
+    "middle": [
+      85,
+      92,
+      61
+    ],
+    "outside_only": [
+      93,
+      98,
+      102
+    ],
+    "reverse_middle": [
+      135,
+      145,
+      172
+    ],
+    "physics": [
+      131,
+      2,
+      221
+    ],
+    "futures_anchor": [
+      141,
+      1,
+      84
+    ]
+  },
+  "final_iterations": {
+    "direct": 57,
+    "reverse": 118,
+    "middle": 76,
+    "outside_only": 100,
+    "reverse_middle": 158,
+    "physics": 112,
+    "futures_anchor": 42
+  }
+}

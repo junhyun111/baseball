@@ -1,0 +1,40 @@
+{
+  "folds": [
+    {
+      "prediction_season": 2019,
+      "history_rows": 0,
+      "pitch_model": false,
+      "mechanics_profiles": 0
+    },
+    {
+      "prediction_season": 2020,
+      "history_rows": 255957,
+      "pitch_model": false,
+      "mechanics_profiles": 8
+    },
+    {
+      "prediction_season": 2021,
+      "history_rows": 535083,
+      "pitch_model": false,
+      "mechanics_profiles": 8
+    },
+    {
+      "prediction_season": 2022,
+      "history_rows": 836115,
+      "pitch_model": true,
+      "mechanics_profiles": 8
+    },
+    {
+      "prediction_season": 2023,
+      "history_rows": 1143752,
+      "pitch_model": true,
+      "mechanics_profiles": 8
+    },
+    {
+      "prediction_season": 2024,
+      "history_rows": 1458852,
+      "pitch_model": true,
+      "mechanics_profiles": 8
+    }
+  ]
+}
