@@ -603,6 +603,7 @@ def apply_calibration(
     game_type: pd.Series | np.ndarray | None = None,
 ) -> np.ndarray:
     method = calibration.get("method", "identity")
+    raw_predictions = np.asarray(predictions, dtype="float64")
     if method == "identity":
         calibrated = predictions
     elif method == "affine":
@@ -623,8 +624,19 @@ def apply_calibration(
             + float(calibration["intercept"])
             + type_offset
         )
+    elif method == "beta":
+        probability = np.clip(raw_predictions, EPSILON, 1.0 - EPSILON)
+        linear = (
+            float(calibration["a"]) * np.log(probability)
+            + float(calibration["b"]) * (-np.log1p(-probability))
+            + float(calibration["c"])
+        )
+        linear = np.clip(linear, -30.0, 30.0)
+        calibrated = 1.0 / (1.0 + np.exp(-linear))
     else:
         raise ValueError(f"Unsupported calibration method: {method}")
+    eta = float(calibration.get("eta", 1.0))
+    calibrated = (1.0 - eta) * raw_predictions + eta * np.asarray(calibrated)
     return clip_predictions(np.asarray(calibrated), feature_config)
 
 
@@ -714,6 +726,77 @@ def _predict_v2_sources(
     return predictions
 
 
+def _predict_v3_blend(
+    model_path: Path,
+    raw: pd.DataFrame,
+    base_features: pd.DataFrame,
+    feature_config: dict[str, Any],
+    ensemble_config: dict[str, Any],
+) -> np.ndarray:
+    """Run the V3 stack using only row-wise and stored historical features."""
+    from catboost import CatBoostClassifier
+    from v3.ensemble import apply_failure_combiner, structured_probability
+    from v3.features import attach_eb_from_config
+    from v3.trackman import mechanics_features, predict_pitch_probabilities
+
+    pitch_model = CatBoostClassifier()
+    pitch_model.load_model(str(model_path / "pitch_type_model.cbm"))
+    pitch_probabilities = predict_pitch_probabilities(pitch_model, raw)
+    trackman_features = mechanics_features(
+        raw, pitch_probabilities, feature_config["v3_trackman_config"]
+    )
+    eb_features = attach_eb_from_config(raw, feature_config["v3_eb_config"])
+    features = pd.concat([base_features, trackman_features, eb_features], axis=1)
+    missing_extra = sorted(
+        set(feature_config.get("v3_extra_columns", [])).difference(features.columns)
+    )
+    if missing_extra:
+        raise ValueError(f"V3 engineered features are missing: {missing_extra}")
+    feature_sets = feature_config["model_feature_columns"]
+
+    def predict(filename: str, feature_set: str, mask: np.ndarray | None = None) -> np.ndarray:
+        columns = list(feature_sets[feature_set])
+        missing = sorted(set(columns).difference(features.columns))
+        if missing:
+            raise ValueError(f"Missing V3 model features for {filename}: {missing}")
+        model = CatBoostClassifier()
+        model.load_model(str(model_path / filename))
+        frame = features.loc[:, columns] if mask is None else features.loc[mask, columns]
+        return clip_predictions(model.predict_proba(frame)[:, 1], feature_config)
+
+    direct = predict("direct_success.cbm", "direct")
+    reverse = predict("reverse_expert.cbm", "all")
+    middle = predict("middle_expert.cbm", "all")
+    outside = predict("outside_expert.cbm", "all")
+    overlap = predict("overlap_expert.cbm", "all")
+    physics = predict("physics_command.cbm", "physics")
+    structured_formula = structured_probability(reverse, middle, outside, overlap)
+    structured_logit = apply_failure_combiner(
+        ensemble_config["failure_combiner"], reverse, middle, outside, overlap
+    )
+    futures_anchor = direct.copy()
+    futures_mask = raw["game_type"].astype(str).to_numpy() == "F"
+    if futures_mask.any():
+        futures_anchor[futures_mask] = predict(
+            "futures_expert.cbm", "all", futures_mask
+        )
+    available = {
+        "direct": direct,
+        "structured_formula": structured_formula,
+        "structured_logit": structured_logit,
+        "physics": physics,
+        "futures_anchor": futures_anchor,
+    }
+    source_order = [str(value) for value in ensemble_config["source_order"]]
+    weights = np.asarray(ensemble_config["weights"], dtype="float64")
+    if len(weights) != len(source_order) or not math.isclose(
+        float(weights.sum()), 1.0, abs_tol=1e-8
+    ):
+        raise ValueError("V3 ensemble weights must match sources and sum to one")
+    matrix = np.column_stack([available[name] for name in source_order])
+    return matrix @ weights
+
+
 def run_inference(
     root: Path,
     data_dir: str | None = None,
@@ -744,7 +827,11 @@ def run_inference(
         raise ValueError("test.csv contains duplicate row_id values")
     model_features = build_features(test, feature_config)
 
-    if int(ensemble_config.get("version", 1)) >= 2:
+    if int(ensemble_config.get("version", 1)) >= 5:
+        blended = _predict_v3_blend(
+            model_path, test, model_features, feature_config, ensemble_config
+        )
+    elif int(ensemble_config.get("version", 1)) >= 2:
         source_predictions = _predict_v2_sources(
             model_path, test, model_features, feature_config, ensemble_config
         )
@@ -840,6 +927,7 @@ def build_submit_zip(root: Path, model_dir: str | None, destination: str | None)
             "catboost==1.2.10",
             "numpy==2.3.2",
             "pandas==2.3.3",
+            "scipy>=1.14",
             "",
         ]
     )
@@ -849,6 +937,12 @@ def build_submit_zip(root: Path, model_dir: str | None, destination: str | None)
         staged_model = staging / "model"
         staged_model.mkdir(parents=True)
         shutil.copy2(Path(__file__).resolve(), staging / "script.py")
+        if int(load_json(model_path / "ensemble_config.json").get("version", 1)) >= 5:
+            source_package = Path(__file__).resolve().parent / "v3"
+            staged_package = staging / "v3"
+            staged_package.mkdir(parents=True, exist_ok=True)
+            for source_file in source_package.glob("*.py"):
+                shutil.copy2(source_file, staged_package / source_file.name)
         for filename in required_files:
             shutil.copy2(model_path / filename, staged_model / filename)
         (staging / "requirements.txt").write_text(requirements, encoding="utf-8")

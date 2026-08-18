@@ -2,6 +2,7 @@ catboost==1.2.10
 numpy==2.3.2
 pandas==2.3.3
 scikit-learn==1.8.0
+scipy==1.18.0
 pyarrow==25.0.1
 matplotlib>=3.7
 seaborn>=0.13

@@ -1,3 +1,4 @@
 open
 .venv
 __pycache__
+runs/
