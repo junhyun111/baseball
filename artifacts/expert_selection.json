@@ -1,0 +1,14 @@
+{
+  "regular_scores": {
+    "regular_hl1_5": 0.24872021973133088,
+    "regular_hl2_5": 0.24873100370168685,
+    "regular_uniform": 0.24879127293825148
+  },
+  "futures_scores": {
+    "futures_hl1": 0.24245602786540985,
+    "futures_post2023": 0.24096407145261764,
+    "futures_weak_old": 0.24271964132785795
+  },
+  "selected_regular": "regular_hl1_5",
+  "selected_futures": "futures_post2023"
+}

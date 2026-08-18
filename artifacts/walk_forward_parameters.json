@@ -1,38 +1,85 @@
-[
-  {
-    "season":2022,
-    "weights":{
-      "global_long":0.2,
-      "global_recent":0.2,
-      "global_seasonless":0.2,
-      "game_type":0.2,
-      "pitcher":0.2
+{
+  "folds": [
+    {
+      "season": 2022,
+      "weights_by_game_type": {
+        "R": [
+          0.5,
+          0.3,
+          0.2
+        ],
+        "F": [
+          0.5,
+          0.3,
+          0.2
+        ]
+      },
+      "affine": {
+        "slope": 1.0,
+        "intercept": 0.0
+      },
+      "type_affine": {
+        "slope": 1.0,
+        "intercept": 0.0,
+        "game_type_offsets": {
+          "R": 0.0,
+          "F": 0.0
+        }
+      }
     },
-    "slope":1.0,
-    "intercept":0.0
-  },
-  {
-    "season":2023,
-    "weights":{
-      "global_long":0.2511378265,
-      "global_recent":0.2460324683,
-      "global_seasonless":0.1596654531,
-      "game_type":0.3431642521,
-      "pitcher":0.0
+    {
+      "season": 2023,
+      "weights_by_game_type": {
+        "R": [
+          0.4949837618123951,
+          0.42240970984108656,
+          0.08260652834651838
+        ],
+        "F": [
+          1.0,
+          1.1102230246251565e-16,
+          0.0
+        ]
+      },
+      "affine": {
+        "slope": 1.1330696884890663,
+        "intercept": -0.07527897365469427
+      },
+      "type_affine": {
+        "slope": 1.0628475320321031,
+        "intercept": -0.039890075495608114,
+        "game_type_offsets": {
+          "F": 0.016714173207226353,
+          "R": 0.0
+        }
+      }
     },
-    "slope":1.1684046715,
-    "intercept":-0.0936534353
-  },
-  {
-    "season":2024,
-    "weights":{
-      "global_long":0.1313277456,
-      "global_recent":0.1269450778,
-      "global_seasonless":0.0539291967,
-      "game_type":0.6877979799,
-      "pitcher":0.0
-    },
-    "slope":1.1483874971,
-    "intercept":-0.0799529906
-  }
-]
+    {
+      "season": 2024,
+      "weights_by_game_type": {
+        "R": [
+          0.16681026359759238,
+          0.786582343755978,
+          0.04660739264642977
+        ],
+        "F": [
+          0.7553808576110368,
+          0.24461914238896332,
+          0.0
+        ]
+      },
+      "affine": {
+        "slope": 1.1384266576907267,
+        "intercept": -0.07431637912236755
+      },
+      "type_affine": {
+        "slope": 1.2093679262430133,
+        "intercept": -0.1,
+        "game_type_offsets": {
+          "F": -0.019755965553481008,
+          "R": 0.0
+        }
+      }
+    }
+  ]
+}

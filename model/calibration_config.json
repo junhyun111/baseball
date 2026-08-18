@@ -1,13 +1,16 @@
 {
-  "version": 2,
+  "version": 3,
   "method": "affine",
-  "slope": 1.1830065521036663,
-  "intercept": -0.09988224176613814,
+  "selection_scores": {
+    "identity": 0.2477118268609047,
+    "affine": 0.24764372408390045,
+    "type_affine": 0.24782317578792573
+  },
   "trained_on_seasons": [
     2022,
     2023,
     2024
   ],
-  "walk_forward_blend_brier": 0.24792432636022568,
-  "walk_forward_affine_brier": 0.247822904586792
+  "slope": 1.18455002043331,
+  "intercept": -0.09989944683928176
 }

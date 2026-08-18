@@ -1,99 +1,67 @@
 {
-  "version": 2,
+  "version": "2.1",
   "fast_mode": false,
   "rows": 1475092,
-  "features": 90,
-  "valid_years": [
-    2022,
-    2023,
-    2024
-  ],
-  "sources": [
-    "global_long",
-    "global_recent",
-    "global_seasonless",
-    "game_type",
-    "pitcher"
-  ],
-  "best_iterations": {
-    "global_long": [
-      161,
-      3,
-      10
-    ],
-    "global_recent": [
-      107,
-      3,
-      11
-    ],
-    "global_seasonless": [
-      90,
-      4,
-      2
-    ],
-    "regular_expert": [
-      108,
-      59,
-      146
-    ],
-    "futures_expert": [
-      140,
-      1,
-      1
-    ],
-    "pitcher": [
-      87,
-      2,
-      103
-    ]
+  "features": 102,
+  "selected_regular": "regular_hl1_5",
+  "selected_futures": "futures_post2023",
+  "selected_fold_brier": {
+    "2022": 0.2435779869556427,
+    "2023": 0.24938511848449707,
+    "2024": 0.24822518229484558
   },
+  "weighted_cv_brier": 0.24764372408390045,
+  "worst_fold_brier": 0.24938511848449707,
+  "brier_2024_f": 0.247111976146698,
+  "mean_gap_2024_f": 0.006413919349306241,
   "ensemble": {
-    "version": 2,
+    "version": 3,
     "source_order": [
-      "global_long",
-      "global_recent",
-      "global_seasonless",
+      "legacy_global",
       "game_type",
       "pitcher"
     ],
     "weights": [
-      0.03648300092040782,
-      0.0,
-      0.0,
-      0.7085826684568582,
-      0.2549343306227339
+      0.5,
+      0.3,
+      0.2
     ],
-    "weight_map": {
-      "global_long": 0.03648300092040782,
-      "global_recent": 0.0,
-      "global_seasonless": 0.0,
-      "game_type": 0.7085826684568582,
-      "pitcher": 0.2549343306227339
+    "weights_by_game_type": {
+      "R": [
+        0.5264441941057806,
+        0.47355580589421953,
+        0.0
+      ],
+      "F": [
+        0.7025530443716325,
+        0.29744695562836765,
+        0.0
+      ]
+    },
+    "weight_map_by_game_type": {
+      "R": {
+        "legacy_global": 0.5264441941057806,
+        "game_type": 0.47355580589421953,
+        "pitcher": 0.0
+      },
+      "F": {
+        "legacy_global": 0.7025530443716325,
+        "game_type": 0.29744695562836765,
+        "pitcher": 0.0
+      }
     },
     "sources": [
       {
-        "name": "global_long",
+        "name": "legacy_global",
         "kind": "single",
-        "file": "global_long.cbm",
-        "feature_set": "global_long"
-      },
-      {
-        "name": "global_recent",
-        "kind": "single",
-        "file": "global_recent.cbm",
-        "feature_set": "global_recent"
-      },
-      {
-        "name": "global_seasonless",
-        "kind": "single",
-        "file": "global_seasonless.cbm",
-        "feature_set": "global_seasonless"
+        "file": "legacy_global.cbm",
+        "feature_set": "legacy_global"
       },
       {
         "name": "game_type",
         "kind": "game_type_router",
         "feature_set": "game_type",
-        "fallback_source": "global_recent",
+        "fallback_source": "legacy_global",
         "routes": {
           "R": "regular_expert.cbm",
           "F": "futures_expert.cbm"
@@ -107,74 +75,77 @@
       }
     ],
     "model_files": [
-      "global_long.cbm",
-      "global_recent.cbm",
-      "global_seasonless.cbm",
+      "legacy_global.cbm",
       "regular_expert.cbm",
       "futures_expert.cbm",
       "pitcher_expert.cbm"
     ],
+    "selected_regular": "regular_hl1_5",
+    "selected_futures": "futures_post2023",
     "best_iterations": {
-      "global_long": [
-        161,
-        3,
-        10
+      "legacy_global": [
+        110,
+        2,
+        112
       ],
-      "global_recent": [
-        107,
-        3,
-        11
+      "pitcher": [
+        131,
+        8,
+        22
       ],
-      "global_seasonless": [
-        90,
-        4,
-        2
+      "regular_hl1_5": [
+        106,
+        73,
+        128
       ],
-      "regular_expert": [
-        108,
-        59,
-        146
+      "regular_hl2_5": [
+        89,
+        85,
+        115
       ],
-      "futures_expert": [
-        140,
+      "regular_uniform": [
+        136,
+        89,
+        143
+      ],
+      "futures_hl1": [
+        420,
         1,
         1
       ],
-      "pitcher": [
-        87,
+      "futures_post2023": [
+        420,
+        1,
+        138
+      ],
+      "futures_weak_old": [
+        242,
         2,
-        103
+        1
       ]
     },
     "final_iterations": {
-      "global_long": 100,
-      "global_recent": 100,
-      "global_seasonless": 100,
-      "regular_expert": 108,
-      "futures_expert": 100,
-      "pitcher": 100
-    },
-    "selection_score": 0.247822904586792
+      "legacy_global": 57,
+      "pitcher": 15,
+      "regular_expert": 100,
+      "futures_expert": 70
+    }
   },
   "calibration": {
-    "version": 2,
+    "version": 3,
     "method": "affine",
-    "slope": 1.1830065521036663,
-    "intercept": -0.09988224176613814,
+    "selection_scores": {
+      "identity": 0.2477118268609047,
+      "affine": 0.24764372408390045,
+      "type_affine": 0.24782317578792573
+    },
     "trained_on_seasons": [
       2022,
       2023,
       2024
     ],
-    "walk_forward_blend_brier": 0.24792432636022568,
-    "walk_forward_affine_brier": 0.247822904586792
+    "slope": 1.18455002043331,
+    "intercept": -0.09989944683928176
   },
-  "selected_fold_brier": {
-    "2022": 0.24352864921092987,
-    "2023": 0.2494528591632843,
-    "2024": 0.24856263399124146
-  },
-  "weighted_cv_brier": 0.247822904586792,
-  "worst_fold_brier": 0.2494528591632843,
-  "elapsed_seconds": 543.4726915359497
+  "elapsed_seconds": 711.8115451335907
 }

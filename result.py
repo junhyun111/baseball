@@ -301,6 +301,39 @@ def initial_feature_config(train: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+def make_post_regime_f_prior_map(
+    train: pd.DataFrame,
+    start_season: int = 2023,
+    half_life: float = 1.0,
+) -> dict[str, float]:
+    """Build an F-only prior emphasizing the post-2023 regime."""
+    future_season = int(train["season"].max()) + 1
+    recent_global, recent_by_type = make_recent_prior_maps(
+        train, half_life=half_life, future_season=future_season
+    )
+    f_rows = train.loc[train["game_type"].astype(str) == "F"]
+    result: dict[str, float] = {}
+    for prediction_season in sorted(int(value) for value in train["season"].unique()) + [future_season]:
+        history = f_rows.loc[
+            (f_rows["season"] >= start_season)
+            & (f_rows["season"] < prediction_season)
+        ]
+        if history.empty:
+            result[str(prediction_season)] = float(
+                recent_by_type.get(str(prediction_season), {}).get(
+                    "F", recent_global[str(prediction_season)]
+                )
+            )
+            continue
+        latest = prediction_season - 1
+        age = latest - history["season"].to_numpy(dtype="float64")
+        weights = np.power(0.5, age / half_life)
+        result[str(prediction_season)] = float(
+            np.average(history[TARGET_COL].to_numpy(dtype="float64"), weights=weights)
+        )
+    return result
+
+
 def _season_prior(series: pd.Series, config: dict[str, Any]) -> pd.Series:
     prior_map = {
         int(key): float(value)
@@ -355,11 +388,23 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
         column for column in RAW_INPUT_COLUMNS if column not in excluded
     ]
     features = raw.loc[:, base_columns].copy()
-    is_v2 = int(config.get("version", 1)) >= 2
+    feature_version = int(config.get("version", 1))
+    is_v2 = feature_version >= 2
+    is_v21 = feature_version >= 3
     historical_prior = _season_prior(raw["season"], config)
     recent_global_prior = _recent_global_prior(raw["season"], config)
     recent_game_type_prior = _recent_game_type_prior(raw, config)
     modeling_prior = recent_game_type_prior if is_v2 else historical_prior
+    post_regime_f_map = {
+        int(key): float(value)
+        for key, value in config.get("post_regime_f_prior_map", {}).items()
+    }
+    post_regime_f_fallback = post_regime_f_map.get(
+        int(config.get("future_season", -1)), float(recent_global_prior.mean())
+    )
+    recent_f_prior = raw["season"].map(post_regime_f_map).fillna(
+        post_regime_f_fallback
+    ).astype("float32")
 
     balls = raw["balls_before"]
     strikes = raw["strikes_before"]
@@ -398,9 +443,13 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     pitcher_n = raw["asof_pitcher_n"].astype("float32")
     batter_n = raw["asof_batter_n"].astype("float32")
     if is_v2:
+        if is_v21:
+            features["season_prior_rate"] = historical_prior
         features["historical_expanding_prior"] = historical_prior
         features["recent_global_prior"] = recent_global_prior
         features["recent_game_type_prior"] = recent_game_type_prior
+        if is_v21:
+            features["recent_f_prior"] = recent_f_prior
         features["pitcher_relative_historical"] = (
             pitcher_rate - historical_prior
         ).astype("float32")
@@ -412,6 +461,28 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     features["batter_relative_success"] = (batter_rate - modeling_prior).astype(
         "float32"
     )
+    if is_v21:
+        legacy_pitcher_rate = raw["asof_pitcher_success_rate"].fillna(
+            historical_prior
+        )
+        legacy_batter_rate = raw["asof_batter_success_rate"].fillna(
+            historical_prior
+        )
+        features["legacy_pitcher_relative_success"] = (
+            legacy_pitcher_rate - historical_prior
+        ).astype("float32")
+        features["legacy_batter_relative_success"] = (
+            legacy_batter_rate - historical_prior
+        ).astype("float32")
+        features["pitcher_relative_game_type_success"] = (
+            pitcher_rate - recent_game_type_prior
+        ).astype("float32")
+        features["pitcher_relative_to_f_prior"] = (
+            pitcher_rate - recent_f_prior
+        ).astype("float32")
+        features["recent_success_relative"] = (
+            raw["asof_pitcher_prev3_game_success_rate"] - recent_game_type_prior
+        ).astype("float32")
 
     for k in config.get("shrinkage_k", [50, 200, 1000]):
         k_value = float(k)
@@ -422,6 +493,12 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
             (pitcher_n * pitcher_rate + k_value * modeling_prior)
             / (pitcher_n + k_value)
         ).astype("float32")
+        if is_v21:
+            features[f"legacy_pitcher_success_shrink_{k}"] = (
+                (pitcher_n * raw["asof_pitcher_success_rate"].fillna(historical_prior)
+                 + k_value * historical_prior)
+                / (pitcher_n + k_value)
+            ).astype("float32")
 
     for k in config.get("batter_shrinkage_k", [50, 200]):
         k_value = float(k)
@@ -429,6 +506,12 @@ def build_features(raw: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
             (batter_n * batter_rate + k_value * modeling_prior)
             / (batter_n + k_value)
         ).astype("float32")
+        if is_v21:
+            features[f"legacy_batter_success_shrink_{k}"] = (
+                (batter_n * raw["asof_batter_success_rate"].fillna(historical_prior)
+                 + k_value * historical_prior)
+                / (batter_n + k_value)
+            ).astype("float32")
 
     career_success = raw["asof_pitcher_success_rate"]
     for window in (1, 3, 5):
@@ -517,6 +600,7 @@ def apply_calibration(
     predictions: np.ndarray,
     calibration: dict[str, Any],
     feature_config: dict[str, Any],
+    game_type: pd.Series | np.ndarray | None = None,
 ) -> np.ndarray:
     method = calibration.get("method", "identity")
     if method == "identity":
@@ -525,6 +609,19 @@ def apply_calibration(
         calibrated = (
             float(calibration["slope"]) * predictions
             + float(calibration["intercept"])
+        )
+    elif method == "type_affine":
+        if game_type is None:
+            raise ValueError("type_affine calibration requires game_type")
+        types = np.asarray(game_type).astype(str)
+        offsets = calibration.get("game_type_offsets", {})
+        type_offset = np.asarray(
+            [float(offsets.get(value, 0.0)) for value in types], dtype="float64"
+        )
+        calibrated = (
+            float(calibration["slope"]) * predictions
+            + float(calibration["intercept"])
+            + type_offset
         )
     else:
         raise ValueError(f"Unsupported calibration method: {method}")
@@ -652,13 +749,32 @@ def run_inference(
             model_path, test, model_features, feature_config, ensemble_config
         )
         source_order = [str(value) for value in ensemble_config["source_order"]]
-        weights = np.asarray(ensemble_config["weights"], dtype="float64")
-        if len(weights) != len(source_order) or not math.isclose(
-            float(weights.sum()), 1.0, abs_tol=1e-8
-        ):
-            raise ValueError("V2 ensemble weights must match sources and sum to one")
         matrix = np.column_stack([source_predictions[name] for name in source_order])
-        blended = matrix @ weights
+        weights_by_type = ensemble_config.get("weights_by_game_type")
+        if weights_by_type:
+            default_weights = np.asarray(
+                ensemble_config.get("weights", [1.0 / len(source_order)] * len(source_order)),
+                dtype="float64",
+            )
+            if len(default_weights) != len(source_order):
+                raise ValueError("Default ensemble weights do not match source count")
+            blended = matrix @ default_weights
+            type_values = test["game_type"].astype(str).to_numpy()
+            for game_type, values in weights_by_type.items():
+                weights = np.asarray(values, dtype="float64")
+                if len(weights) != len(source_order) or not math.isclose(
+                    float(weights.sum()), 1.0, abs_tol=1e-8
+                ):
+                    raise ValueError(f"Invalid ensemble weights for game_type={game_type}")
+                mask = type_values == str(game_type)
+                blended[mask] = matrix[mask] @ weights
+        else:
+            weights = np.asarray(ensemble_config["weights"], dtype="float64")
+            if len(weights) != len(source_order) or not math.isclose(
+                float(weights.sum()), 1.0, abs_tol=1e-8
+            ):
+                raise ValueError("V2 ensemble weights must match sources and sum to one")
+            blended = matrix @ weights
     else:
         rmse_model = CatBoostRegressor()
         rmse_model.load_model(str(model_path / "global_rmse.cbm"))
@@ -673,7 +789,9 @@ def run_inference(
         if not math.isclose(weight_rmse + weight_logloss, 1.0, abs_tol=1e-8):
             raise ValueError("Ensemble weights must sum to one")
         blended = weight_rmse * pred_rmse + weight_logloss * pred_logloss
-    predictions = apply_calibration(blended, calibration_config, feature_config)
+    predictions = apply_calibration(
+        blended, calibration_config, feature_config, test["game_type"]
+    )
 
     predicted = pd.DataFrame({ID_COL: test[ID_COL].astype(str), TARGET_COL: predictions})
     sample_path = data_path / "sample_submission.csv"
