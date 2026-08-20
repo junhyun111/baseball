@@ -1,6 +1,0 @@
-{
-  "pid": 29773,
-  "started_at": 1787198600.0333796,
-  "command": ".venv/bin/python train_v4.py",
-  "log": "runs/research/strict_direct/training.log"
-}
