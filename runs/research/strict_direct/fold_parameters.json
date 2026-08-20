@@ -1,0 +1,88 @@
+{
+  "EXP017": {
+    "2024": {
+      "inner_train_rows": 976060,
+      "inner_valid_year": 2023,
+      "inner_valid_rows": 245525,
+      "selected_iterations": 2,
+      "inner_best_score": {
+        "learn": {
+          "Logloss": 0.6785804821423181,
+          "BrierScore": 0.24288240917252119
+        },
+        "validation": {
+          "Logloss": 0.6931119539761735,
+          "BrierScore": 0.24997698115554182
+        }
+      }
+    },
+    "2022": {
+      "inner_train_rows": 481500,
+      "inner_valid_year": 2021,
+      "inner_valid_rows": 247088,
+      "selected_iterations": 130,
+      "inner_best_score": {
+        "learn": {
+          "Logloss": 0.674617921251437,
+          "BrierScore": 0.24090826740119517
+        },
+        "validation": {
+          "Logloss": 0.6847113300726867,
+          "BrierScore": 0.24582209803927826
+        }
+      }
+    },
+    "2023": {
+      "inner_train_rows": 728588,
+      "inner_valid_year": 2022,
+      "inner_valid_rows": 247472,
+      "selected_iterations": 149,
+      "inner_best_score": {
+        "learn": {
+          "Logloss": 0.6759270176828416,
+          "BrierScore": 0.2415815826082881
+        },
+        "validation": {
+          "Logloss": 0.6797212159355401,
+          "BrierScore": 0.2434561820557627
+        }
+      }
+    }
+  },
+  "EXP018": {
+    "2024": {
+      "inner_train_rows": 976060,
+      "inner_valid_year": 2023,
+      "inner_valid_rows": 245525,
+      "selected_iterations": 2,
+      "inner_best_score": {
+        "learn": {
+          "Logloss": 0.6785936700028046,
+          "BrierScore": 0.24288956556953334
+        },
+        "validation": {
+          "Logloss": 0.6930828072497709,
+          "BrierScore": 0.24995351101619756
+        }
+      }
+    }
+  },
+  "EXP019": {
+    "2024": {
+      "inner_train_rows": 976060,
+      "inner_valid_year": 2023,
+      "inner_valid_rows": 245525,
+      "selected_iterations": 1,
+      "inner_best_score": {
+        "learn": {
+          "Logloss": 0.6785718367671103,
+          "BrierScore": 0.2428792136630043
+        },
+        "validation": {
+          "Logloss": 0.6930647973729763,
+          "BrierScore": 0.24995868206277574
+        }
+      }
+    }
+  }
+}
